@@ -51,7 +51,74 @@ goto cancel
 
 :firebase
 echo --- Deploying to Firebase Hosting ---
-where firebase >nul 2>nul || (echo [x] Firebase CLI not found. Install: npm install -g firebase-tools && goto end)
+where firebase >nul 2>nul || (
+  echo Firebase CLI not found. Installing now ^(npm install -g firebase-tools^)...
+  call npm install -g firebase-tools
+)
+where firebase >nul 2>nul || (echo [x] Could not install Firebase CLI. Install Node.js first: https://nodejs.org && goto end)
+
+REM make sure we are logged in to Firebase
+call firebase projects:list >nul 2>nul || (
+  echo You need to log in to Firebase - a browser may open. Follow the steps.
+  call firebase login
+)
+
+echo.
+echo You are about to deploy as this Firebase account:
+call firebase login:list
+set /p FBOK="Use this account? (Y = yes / N = switch to another): "
+if /i "!FBOK!"=="N" (
+  echo Switching account - logging out, then logging in again...
+  call firebase logout
+  call firebase login
+)
+
+if exist "firebase.json" goto fb_deploy
+
+echo.
+echo No firebase.json yet - setting up Firebase Hosting for this folder.
+set "PUBDIR="
+for %%D in (dist build public out _site docs) do (
+  if not defined PUBDIR if exist "%%D\index.html" set "PUBDIR=%%D"
+)
+if not defined PUBDIR if exist "index.html" set "PUBDIR=."
+if not defined PUBDIR set "PUBDIR=."
+echo Site folder ^(public^): "!PUBDIR!"
+echo.
+echo Your existing Firebase projects:
+call firebase projects:list
+echo.
+echo   1) Use an EXISTING project from the list above
+echo   2) Create a NEW project
+set /p FBMODE="Choose 1 or 2: "
+echo.
+if "!FBMODE!"=="1" goto fb_existing
+
+REM ---- create a new project ----
+set /p FBPROJ="Type a NEW unique id (lowercase/numbers/hyphens, e.g. cafe24-2026): "
+if "!FBPROJ!"=="" goto end
+set "FBPROJ=!FBPROJ: =-!"
+echo Creating new project "!FBPROJ!" ...
+call firebase projects:create "!FBPROJ!" --display-name "!FBPROJ!"
+goto fb_writeconfig
+
+:fb_existing
+set /p FBPROJ="Type the existing Project ID (the 'Project ID' column): "
+if "!FBPROJ!"=="" goto end
+set "FBPROJ=!FBPROJ: =-!"
+
+:fb_writeconfig
+echo Using project id: "!FBPROJ!"
+> .firebaserc echo {"projects":{"default":"!FBPROJ!"}}
+> firebase.json echo {
+>> firebase.json echo   "hosting": {
+>> firebase.json echo     "public": "!PUBDIR!",
+>> firebase.json echo     "ignore": ["firebase.json","**/.*","**/node_modules/**","**/*.bat","**/*.cmd","**/*.exe","**/*.ps1","**/*.vbs","**/*.sh"]
+>> firebase.json echo   }
+>> firebase.json echo }
+echo Created firebase.json and .firebaserc.
+
+:fb_deploy
 call firebase deploy --only hosting
 goto done
 
