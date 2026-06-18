@@ -216,7 +216,18 @@ if not exist ".gitignore" (
   >>.gitignore echo .cache/
 )
 if not exist ".git" git init
+call :setidentity
 git add .
 git commit -m "first commit"
 git branch -M main
+exit /b
+
+REM ---- make commits show as the logged-in GitHub user (this repo only) ----
+:setidentity
+where gh >nul 2>nul || exit /b
+gh auth status >nul 2>nul || exit /b
+for /f "delims=" %%i in ('gh api user --jq .login 2^>nul') do set "GHLOGIN=%%i"
+for /f "delims=" %%i in ('gh api user --jq .id 2^>nul') do set "GHID=%%i"
+if defined GHLOGIN git config user.name "!GHLOGIN!"
+if defined GHLOGIN if defined GHID git config user.email "!GHID!+!GHLOGIN!@users.noreply.github.com"
 exit /b
