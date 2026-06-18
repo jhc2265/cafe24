@@ -1,0 +1,61 @@
+@charset "UTF-8";
+@use 'reset';
+@use 'font';
+
+html {font-size: 62.5%;}
+
+body {font-family: "Pretendard", san-serif;}
+.container {width: 1600px; margin: 0 auto;}
+
+header {height: 9rem; display: flex; justify-content: center; align-items: center; 
+
+    .container {display: flex; justify-content: space-between; 
+    
+        h1 {}
+
+        nav {
+            .gnb {display: flex; height: 100%;
+                & > li {font-size: 2.2rem; font-family: 'Paperozi'; font-weight: 600; position: relative; display: flex; align-items: center;
+                    &:hover .lnb {opacity: 1; visibility: visible;}
+                    & > a {padding: 0 5rem;}
+
+                    .lnb {position: absolute; top: 100%; left: 0; width: 100%; background: #fff; opacity: 0; visibility: hidder; transition: .25s;
+                        li {font-size: 1.8rem; font-weight: 400; font-family: 'Pretendard'; height: 5rem; border-bottom: 1px solid #ddd;
+                            &:last-child {border-bottom: 0;}
+                            &:hover {background: #3148A7;
+                                a {color: #fff;}
+                            }
+                            a {display: flex; justify-content: center; align-items: center; height: 100%;}
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .login_box {display: flex; align-items: center; gap: 1.6rem;} 
+}
+
+#hero {
+  .container {position: absolute; border: 1px solid #000; top: 50%; width: 1600px; left: 50%; transform: translate(-50%, -50%);
+    .textbox { font-family: 'Paperozi'; display: flex; flex-direction: column;
+      .top {font-size: 1.2rem; margin-bottom: 4rem; color: #0D3588;}
+      strong {font-size: 6rem; margin-bottom: 1.5rem; color: #17243B; line-height: 1.3;}
+      p {font-size: 2.4rem; margin-bottom: 4rem; color: #222222;}
+      .btn {font-size: 2rem;}
+    }
+  }
+}
+
+#section_box {
+
+    #section1 {}
+
+    #section2 {}
+
+    #section3 {}
+
+    #section4 {}
+}
+
+footer {}
